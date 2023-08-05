@@ -31,13 +31,17 @@ class Fish:
         self.type = type_
         self.speed = 5
         self.crossed = False
-        self.pattern = random.randint(0, 1)
+        self.pattern = random.randint(1, 1)
         self.stage = 0
+        self.sawtooth = plot_sawtooth(1000, 100)
+        self.adders = [5, 1]
     def update(self):
-        self.stage+=5
+        self.stage+=self.adders[self.pattern]
         self.pos[0]+=self.speed
         if (self.pattern==0):
             self.pos[1]=self.orig_pos[1]+(sin(radians(self.stage))*40)
+        if (self.pattern==1):
+            self.pos[1]=self.orig_pos[1]+(self.sawtooth[self.stage]*40)
         cr.screen.blit(fish_sprites[self.type], self.pos)
         if (self.pos[0]>1180+fish_sprites[self.type].get_width()/2):
             self.crossed = True
@@ -45,7 +49,7 @@ class Fish:
         self.pos = [random.randint(-(1280+fish_sprites[self.type].get_width()), 0-fish_sprites[self.type].get_width()), random.randint(0, 150)]
         self.type = random.randint(0, 1)
         self.crossed = False
-        self.pattern = random.randint(0, 1)
+        self.pattern = random.randint(1, 1)
 class FishManager:
     def __init__(self):
         self.fishes = [Fish(random.randint(-1280, 0), random.randint(0, 150), random.randint(0, 1)) for i in range(20)]
