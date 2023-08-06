@@ -19,6 +19,9 @@ mouse_collider.size = 50
 fish_sprites = [pygame.image.load("assets/Spritesheets/fish1/fish-0001.png").convert(), pygame.image.load("assets/Spritesheets/fish1/fish-0002.png").convert(), pygame.image.load("assets/Spritesheets/fish1/fish-0003.png").convert()]
 fish_sprites = [utils.scale_image(f, 2) for f in fish_sprites]
 [sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites]
+pygame.init()
+pygame.mixer.music.load("assets/Audio/background_track.wav")
+pygame.mixer.music.play(-1)
 def sawtooth_sample(amplitude, freq, samplerate, i):
     value = atan(tan(2.0 * pi * float(freq) * (float(i) / float(samplerate))))
     return amplitude * value
