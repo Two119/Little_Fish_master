@@ -16,10 +16,12 @@ cr.event_holder.determined_fps = 60
 global mouse_collider
 mouse_collider = Collider(0, 61.3)
 mouse_collider.size = 50
-fish_sprites = [pygame.image.load("assets/Spritesheets/fish1/fish-0001.png").convert(), pygame.image.load("assets/Spritesheets/fish1/fish-0002.png").convert(), pygame.image.load("assets/Spritesheets/fish1/fish-0003.png").convert()]
-fish_sprites = [utils.scale_image(f, 2) for f in fish_sprites]
-[utils.swap_color(sprite, [102, 57, 49], [0, 0, 0]) for sprite in fish_sprites]
-[sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites]
+fish_sprites = [[pygame.image.load("assets/Spritesheets/fish2/fish2-00"+str(i)+".png").convert() for i in range(3)], [pygame.image.load("assets/Spritesheets/fish1/fish-000"+str(i)+".png").convert() for i in range(1, 4)]]
+fish_sprites[0] = [utils.scale_image(f, 2) for f in fish_sprites[0]]
+fish_sprites[1] = [utils.scale_image(f, 2) for f in fish_sprites[1]]
+[utils.swap_color(sprite, [102, 57, 49], [0, 0, 0]) for sprite in fish_sprites[1]]
+[sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites[0]]
+[sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites[1]]
 pygame.init()
 pygame.mixer.music.load("assets/Audio/background_track.wav")
 pygame.mixer.music.play(-1)
@@ -44,29 +46,34 @@ sawtooth = plot_sawtooth(800, 300)
 triangle_wave = list(triangle(150, 50))
 class Fish:
     def __init__(self, x, elevation, type_):
-        self.pos = [0-x, elevation]
-        self.orig_pos = [0-x, elevation]
+        self.pos = [x, elevation]
+        self.orig_pos = [x, elevation]
         self.speed = 4
         self.crossed = False
         self.pattern = random.randint(0, 0)
-        self.type = self.pattern
+        self.type = random.randint(0, len(fish_sprites)-1)
         self.stage = -1
         self.adders = [4, 1, 0]
         self.adding = False
         self.delay = 0
         self.sprite = fish_sprites[self.type]
-        self.mask = pygame.mask.from_surface(self.sprite)
+        self.frame = 0
+        self.masks = [pygame.mask.from_surface(surf) for surf in self.sprite]
     def update(self):
         global square_wave
         self.stage+=self.adders[self.pattern]
         self.delay+=1
+        if self.delay%8==0:
+            self.frame+=1
+            if (self.frame>len(self.sprite)-1):
+                self.frame = 0
         if (self.pattern == 1):
             if self.stage > len(triangle_wave)-1:
                 self.stage = 0
         self.pos[0]-=self.speed
         if (self.pattern==0):
             self.pos[1]=self.orig_pos[1]+(sin(radians(self.stage))*60)
-            self.sprite = pygame.transform.rotate(fish_sprites[self.type], degrees(asin(sin(radians(self.stage)))))
+            #self.sprite = pygame.transform.rotate(fish_sprites[self.type], degrees(asin(sin(radians(self.stage)))))
         if (self.pattern==1):
             self.pos[1]=self.orig_pos[1]+(triangle_wave[self.stage])
         if (self.pattern==2):
@@ -75,7 +82,6 @@ class Fish:
                 if (self.stage>len(square_wave)-1):
                     self.stage=0
             self.pos[1]=self.orig_pos[1]+(square_wave[self.stage])*10
-        self.mask = pygame.mask.from_surface(self.sprite)
         if player.fishing and player.recreated:
             
             if player.rope is not None:
@@ -87,19 +93,12 @@ class Fish:
                             pass
                         else:
                             pass
-        cr.screen.blit(self.sprite, self.pos)
+        cr.screen.blit(self.sprite[self.frame], self.pos)
         if (self.pos[0]<0):
             self.crossed = True
-    def regen(self):
-        self.pos = [random.randint(1280, 2*1280), random.randint(475, 575)]
-        self.crossed = False
-        self.pattern = random.randint(0, 0)
-        self.type = self.pattern
-        self.stage = -1
-        self.orig_pos=[self.pos[0], self.pos[1]]
 class FishManager:
     def __init__(self):
-        self.fishes = [Fish(random.randint(-1280, 0), random.randint(475, 575), random.randint(0, 1)) for i in range(20)]
+        self.fishes = [Fish(random.randint(1280, 1280*2), random.randint(475, 575), random.randint(0, 1)) for i in range(10)]
     def update(self):
         num_fish = -1
         for fish in self.fishes:
@@ -107,7 +106,9 @@ class FishManager:
             if not fish.crossed:
                 fish.update()
             else:
-                self.fishes[num_fish].regen()
+                self.fishes.remove(self.fishes[num_fish])
+        if len(self.fishes) == 0 and player.restart:
+            self.fishes = [Fish(random.randint(1280, 1280*2), random.randint(475, 575), random.randint(0, 1)) for i in range(10)]
 fish_manager = FishManager()
 class Slider:
     def __init__(self, args):
@@ -144,7 +145,9 @@ class Player:
         self.throw_anim = []
         self.idle_anim = []
         self.pull_anim = []
-        self.bait_sprite = pygame.Surface([24, 24])
+        self.restart = False
+        self.bait_sprite = pygame.image.load("assets/Spritesheets/bait.png").convert()
+        self.bait_sprite.set_colorkey([255, 255, 255])
         for i in range(6):
             self.throw_anim.append(pygame.transform.flip(utils.scale_image(pg.image.load("assets/Spritesheets//throw/throw"+str(i)+".png").convert()), False, False))
             self.throw_anim[i].set_colorkey([0, 0, 0])
@@ -164,7 +167,6 @@ class Player:
         self.line_length = 100
         self.default_length = 256
         self.bait_size = 1
-        self.bait_sprite = pg.Surface([20, 20])
         self.scores = []
         self.fish = 0
         self.rope = None
@@ -180,8 +182,8 @@ class Player:
         self.down_rect = pygame.Rect(0, 360, 720, 360)
         self.y_points = []
         self.old_len = 0
-        self.moving = False
-        self.frame = 0
+        self.moving = True
+        self.frame = -1
         self.delay = 0
         self.state = 0
         self.throw_begin_move = [0, 84]
@@ -194,29 +196,25 @@ class Player:
         cr.screen.blit(self.boat_sprite, self.pos)
     def update(self):
         self.delay +=1
-        if (pg.K_RIGHT in pressed_keys) or (pg.K_RIGHT in held_keys):
-            self.fishing_line_angle -= 1
-            print(self.fishing_line_angle)
-        if (pg.K_LEFT in pressed_keys) or (pg.K_LEFT in held_keys):
-            self.fishing_line_angle += 1
-            print(self.fishing_line_angle)
+        
         if mouse_pressed_keys[0] and self.rope == None and not self.fishing:
             self.create_fishing_line()
             self.fishing=True
             self.prepare_fishing_line()
         if self.delay%12==0:
             self.frame+=1
-            if self.state == 0:
-                if self.frame>(len(self.idle_anim)-1):
-                    self.frame = 0
-            elif self.state == 1:
-                if self.frame>(len(self.throw_anim)-1):
-                    self.frame = 0
-                    self.state = 0
-            elif self.state == 2:
-                if self.frame>(len(self.pull_anim)-1):
-                    self.frame = 0
-                    self.state = 0
+        if self.state == 0:
+            if self.frame>(len(self.idle_anim)-1):
+                self.frame = 0
+        elif self.state == 1:
+            if self.frame>(len(self.throw_anim)-1):
+                self.frame = 0
+                self.state = 0
+        elif self.state == 2:
+            if self.frame>(len(self.pull_anim)-1):
+                self.frame = 0
+                self.state = 0
+            
         if self.state==0:
             cr.screen.blit(self.idle_anim[self.frame], [self.pos[0]+self.boat_sprite.get_width()-self.idle_anim[0].get_width()+20, self.pos[1]-10])
         elif self.state==1:
@@ -241,6 +239,13 @@ class Player:
                 self.recreated = True
                 self.y_points = []
                 self.state = 1
+            if not self.recreated:
+                if (pg.K_RIGHT in pressed_keys) or (pg.K_RIGHT in held_keys):
+                    self.fishing_line_angle -= 1
+                    print(self.fishing_line_angle)
+                if (pg.K_LEFT in pressed_keys) or (pg.K_LEFT in held_keys):
+                    self.fishing_line_angle += 1
+                    print(self.fishing_line_angle)
             if self.recreated:
                 #print(self.rope.moving)
                 self.rope.draw(self.rope_screen)
@@ -350,12 +355,12 @@ while not cr.event_holder.should_quit:
         if player.rope is not None:
             if player.rope.lowest_point is not None:
                 if not player.recall_fishing_line:
-                    cr.screen.blit(player.bait_sprite, player.rope.lowest_point)
+                    cr.screen.blit(player.bait_sprite, [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.rope.lowest_point[1]])
                 else:
                     if player.rope.lowest_point[1] > player.cover_rect.y:
-                        cr.screen.blit(player.bait_sprite, [player.rope.lowest_point[0], player.cover_rect.y])
+                        cr.screen.blit(player.bait_sprite, [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.cover_rect.y])
                     else:
-                        cr.screen.blit(player.bait_sprite, player.rope.lowest_point)
+                        cr.screen.blit(player.bait_sprite, [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.rope.lowest_point[1]])
     fish_manager.update()
     #cr.screen.blit(pygame.transform.flip(cr.screen, True, False), (0, 0))
     pg.display.update()

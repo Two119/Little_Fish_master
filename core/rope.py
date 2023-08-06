@@ -88,8 +88,9 @@ class Rope:
         gravity = self.gravity
 
         gravity.mult(delta_time)
-
+        num_point = -1
         for point in self.points:
+            num_point += 1
             for collider in colliders:
                 if not point.static and collider.pos.dist(point.pos) < collider.size:
                     d_pos = point.pos - collider.pos
@@ -112,6 +113,7 @@ class Rope:
             if point.child is None:
                 self.lowest_point = [round(point.pos.x), round(point.pos.y)]
                 #print(self.lowest_point)
+                print(num_point)
                 continue
 
             if point.child.pos.dist(point.pos) > point.distance_to_child:
