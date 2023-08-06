@@ -3,10 +3,10 @@ from core.vector_class import Vector2D as Vec
 from math import sqrt, degrees, radians, cos, sin, tan, pi, atan, asin
 gravity_strength = Vec(78.4 * -30, 78.4 * 90)
 global resultant_gravitational_force
-resultant_gravitational_force = 7888.847824619258
+resultant_gravitational_force = 12000
 class World:
     
-    max_point_speed = 100
+    max_point_speed = 20
 
 
 class Settings:
@@ -59,6 +59,7 @@ class Rope:
         self.gravity = gravity_strength.copy()
         d_len = length / resolution
         self.points = []
+        self.orig_pos = [x, y]
         for i in range(resolution):
             d_y = y - (i * (d_len / 2))
             d_x = x + (i * 10)
@@ -74,7 +75,6 @@ class Rope:
 
             if i > 0:
                 self.points[i - 1].set_child(self.points[i])
-
         for i in range(len(self.points)):
             self.points[i].mass = (i + 1) * 0.3
         self.moving = False
@@ -112,8 +112,6 @@ class Rope:
                 
             if point.child is None:
                 self.lowest_point = [round(point.pos.x), round(point.pos.y)]
-                #print(self.lowest_point)
-                print(num_point)
                 continue
 
             if point.child.pos.dist(point.pos) > point.distance_to_child:
