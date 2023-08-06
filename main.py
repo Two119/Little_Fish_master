@@ -217,7 +217,7 @@ class Player:
         self.length_bar_outline = get_outline_mask(self.length_bar, self.length_bar_pos)
         self.length_bar.fill([0, 0, 0])
     def create_fishing_line(self):
-        self.rope = Rope(self.pos[0]+self.boat_sprite.get_width()+15, self.pos[1]+10, self.line_length, self.line_length//10)
+        self.rope = Rope(self.pos[0]+self.boat_sprite.get_width()+15, self.pos[1]+10, self.line_length, self.line_length//11)
     def prepare_fishing_line(self):
         self.rope.gravity.x = resultant_gravitational_force*cos(radians(self.fishing_line_angle))
         self.rope.gravity.y = resultant_gravitational_force*sin(radians(self.fishing_line_angle))
@@ -403,7 +403,7 @@ while not cr.event_holder.should_quit:
                     else:
                         cr.screen.blit(player.bait_sprite, [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.rope.lowest_point[1]])
                         pygame.draw.circle(cr.screen, [155, 173, 183], player.rope.lowest_point, 5*player.bait_slider.value)
-                print(player.rope.lowest_point[1]-player.rope.orig_pos[1])
+                #print(player.rope.lowest_point[1]-player.rope.orig_pos[1])
     fish_manager.update()
     #cr.screen.blit(pygame.transform.flip(cr.screen, True, False), (0, 0))
     pg.display.update()
