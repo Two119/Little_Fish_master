@@ -332,7 +332,15 @@ while not cr.event_holder.should_quit:
     wave_manager.update()
     if player.fishing and player.recreated:
         cr.screen.blit(player.rope_screen, (0, 0))
-        cr.screen.blit(player.bait_sprite, [player.rope.lowest_point.x, player.rope.lowest_point.y])
+        if player.rope is not None:
+            if player.rope.lowest_point is not None:
+                if not player.recall_fishing_line:
+                    cr.screen.blit(player.bait_sprite, player.rope.lowest_point)
+                else:
+                    if player.rope.lowest_point[1] > player.cover_rect.y:
+                        cr.screen.blit(player.bait_sprite, [player.rope.lowest_point[0], player.cover_rect.y])
+                    else:
+                        cr.screen.blit(player.bait_sprite, player.rope.lowest_point)
     fish_manager.update()
     #cr.screen.blit(pygame.transform.flip(cr.screen, True, False), (0, 0))
     pg.display.update()
