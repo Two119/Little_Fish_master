@@ -18,6 +18,7 @@ mouse_collider = Collider(0, 61.3)
 mouse_collider.size = 50
 fish_sprites = [pygame.image.load("assets/Spritesheets/fish1/fish-0001.png").convert(), pygame.image.load("assets/Spritesheets/fish1/fish-0002.png").convert(), pygame.image.load("assets/Spritesheets/fish1/fish-0003.png").convert()]
 fish_sprites = [utils.scale_image(f, 2) for f in fish_sprites]
+[utils.swap_color(sprite, [102, 57, 49], [0, 0, 0]) for sprite in fish_sprites]
 [sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites]
 pygame.init()
 pygame.mixer.music.load("assets/Audio/background_track.wav")
@@ -43,8 +44,8 @@ sawtooth = plot_sawtooth(800, 300)
 triangle_wave = list(triangle(150, 50))
 class Fish:
     def __init__(self, x, elevation, type_):
-        self.pos = [x, elevation]
-        self.orig_pos = [x, elevation]
+        self.pos = [0-x, elevation]
+        self.orig_pos = [0-x, elevation]
         self.speed = 4
         self.crossed = False
         self.pattern = random.randint(0, 0)
@@ -62,10 +63,10 @@ class Fish:
         if (self.pattern == 1):
             if self.stage > len(triangle_wave)-1:
                 self.stage = 0
-        self.pos[0]+=self.speed
+        self.pos[0]-=self.speed
         if (self.pattern==0):
             self.pos[1]=self.orig_pos[1]+(sin(radians(self.stage))*60)
-            self.sprite = pygame.transform.flip(pygame.transform.rotate(fish_sprites[self.type], degrees(asin(sin(radians(self.stage))))), True, False)
+            self.sprite = pygame.transform.rotate(fish_sprites[self.type], degrees(asin(sin(radians(self.stage)))))
         if (self.pattern==1):
             self.pos[1]=self.orig_pos[1]+(triangle_wave[self.stage])
         if (self.pattern==2):
@@ -75,11 +76,22 @@ class Fish:
                     self.stage=0
             self.pos[1]=self.orig_pos[1]+(square_wave[self.stage])*10
         self.mask = pygame.mask.from_surface(self.sprite)
+        if player.fishing and player.recreated:
+            
+            if player.rope is not None:
+                if player.rope.lowest_point is not None:
+                    if not player.recall_fishing_line:
+                        pass
+                    else:
+                        if player.rope.lowest_point[1] > player.cover_rect.y:
+                            pass
+                        else:
+                            pass
         cr.screen.blit(self.sprite, self.pos)
-        if (self.pos[0]>1180+self.sprite.get_width()/2):
+        if (self.pos[0]<0):
             self.crossed = True
     def regen(self):
-        self.pos = [random.randint(-(1280+fish_sprites[self.type].get_width()), 0-fish_sprites[self.type].get_width()), random.randint(475, 575)]
+        self.pos = [random.randint(1280, 2*1280), random.randint(475, 575)]
         self.crossed = False
         self.pattern = random.randint(0, 0)
         self.type = self.pattern
