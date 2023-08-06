@@ -3,6 +3,9 @@ import core.common.resources as cr
 import core.common.utils as utils
 from core.event_holder import EventHolder
 from core.rope import *
+#import numpy
+global square_wave
+square_wave = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 8, 6, 4, 2, 0]
 cr.screen = pg.display.set_mode([1280, 720])
 """
 event holder takes care of getting the events and
@@ -13,7 +16,8 @@ cr.event_holder.determined_fps = 60
 global mouse_collider
 mouse_collider = Collider(0, 61.3)
 mouse_collider.size = 50
-fish_sprites = [pygame.Surface([24, 24]), pygame.Surface([32, 32]), pygame.Surface([48, 48])]
+fish_sprites = [pygame.image.load("assets/Spritesheets/fish1/fish-0001.png").convert(), pygame.image.load("assets/Spritesheets/fish1/fish-0002.png").convert(), pygame.image.load("assets/Spritesheets/fish1/fish-0003.png").convert()]
+fish_sprites = [utils.scale_image(f, 2) for f in fish_sprites]
 def sawtooth_sample(amplitude, freq, samplerate, i):
     value = atan(tan(2.0 * pi * float(freq) * (float(i) / float(samplerate))))
     return amplitude * value
@@ -24,32 +28,57 @@ def plot_sawtooth(num_samples, frequency):
     for i in range(num_samples):
         samples.append(sawtooth_sample(1.0, frequency, 44100, i))
     return samples
+def triangle(length, amplitude):
+    section = length // 4
+    for direction in (1, -1):
+        for i in range(section):
+            yield i * (amplitude / section) * direction
+        for i in range(section):
+            yield (amplitude - (i * (amplitude / section))) * direction
+sawtooth = plot_sawtooth(800, 300)
+triangle_wave = list(triangle(150, 50))
 class Fish:
     def __init__(self, x, elevation, type_):
         self.pos = [x, elevation]
         self.orig_pos = [x, elevation]
-        self.type = type_
+        
         self.speed = 5
         self.crossed = False
-        self.pattern = random.randint(1, 1)
-        self.stage = 0
-        self.sawtooth = plot_sawtooth(1000, 100)
-        self.adders = [5, 1]
+        self.pattern = random.randint(0, 2)
+        self.type = self.pattern
+        self.stage = -1
+        self.adders = [5, 1, 0]
+        self.adding = False
+        self.delay = 0
     def update(self):
+        global square_wave
         self.stage+=self.adders[self.pattern]
+        self.delay+=1
+        if (self.pattern == 1):
+            if self.stage > len(triangle_wave)-1:
+                self.stage = 0
         self.pos[0]+=self.speed
         if (self.pattern==0):
-            self.pos[1]=self.orig_pos[1]+(sin(radians(self.stage))*40)
+            self.pos[1]=self.orig_pos[1]+(sin(radians(self.stage))*60)
         if (self.pattern==1):
-            self.pos[1]=self.orig_pos[1]+(self.sawtooth[self.stage]*40)
+            self.pos[1]=self.orig_pos[1]+(triangle_wave[self.stage])
+        if (self.pattern==2):
+            if (self.delay%3==0):
+                self.stage+=1
+                if (self.stage>len(square_wave)-1):
+                    self.stage=0
+            self.pos[1]=self.orig_pos[1]+(square_wave[self.stage])*10
+                    
         cr.screen.blit(fish_sprites[self.type], self.pos)
         if (self.pos[0]>1180+fish_sprites[self.type].get_width()/2):
             self.crossed = True
     def regen(self):
         self.pos = [random.randint(-(1280+fish_sprites[self.type].get_width()), 0-fish_sprites[self.type].get_width()), random.randint(0, 150)]
-        self.type = random.randint(0, 1)
         self.crossed = False
-        self.pattern = random.randint(1, 1)
+        self.pattern = random.randint(0, 2)
+        self.type = self.pattern
+        self.stage = -1
+        self.orig_pos=[self.pos[0], self.pos[1]]
 class FishManager:
     def __init__(self):
         self.fishes = [Fish(random.randint(-1280, 0), random.randint(0, 150), random.randint(0, 1)) for i in range(20)]
@@ -294,7 +323,7 @@ while not cr.event_holder.should_quit:
     pygame.draw.rect(cr.screen, ocean_color, ocean_rect)
     cr.screen.blit(sea_bed, [0, 720-sea_bed.get_height()])
     cloud_manager.update()
-    print(cr.event_holder.final_fps)
+    #print(cr.event_holder.final_fps)
     player.update()
     wave_manager.update()
     if player.fishing and player.recreated:
