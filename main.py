@@ -276,13 +276,13 @@ class Player:
                 self.recreated = True
                 self.y_points = []
                 self.state = 1
-
-            if (pg.K_RIGHT in pressed_keys) or (pg.K_RIGHT in held_keys):
-                self.fishing_line_angle -= 1
-                print(self.fishing_line_angle)
-            if (pg.K_LEFT in pressed_keys) or (pg.K_LEFT in held_keys):
-                self.fishing_line_angle += 1
-                print(self.fishing_line_angle)
+            if not self.recreated:
+                if (pg.K_RIGHT in pressed_keys) or (pg.K_RIGHT in held_keys):
+                    self.fishing_line_angle -= 1
+                    print(self.fishing_line_angle)
+                if (pg.K_LEFT in pressed_keys) or (pg.K_LEFT in held_keys):
+                    self.fishing_line_angle += 1
+                    print(self.fishing_line_angle)
             if self.recreated:
                 #print(self.rope.moving)
                 self.rope.draw(self.rope_screen)
