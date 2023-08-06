@@ -51,6 +51,7 @@ class Fish:
         self.adding = False
         self.delay = 0
         self.sprite = fish_sprites[self.type]
+        self.mask = pygame.mask.from_surface(self.sprite)
     def update(self):
         global square_wave
         self.stage+=self.adders[self.pattern]
@@ -70,7 +71,7 @@ class Fish:
                 if (self.stage>len(square_wave)-1):
                     self.stage=0
             self.pos[1]=self.orig_pos[1]+(square_wave[self.stage])*10
-                    
+        self.mask = pygame.mask.from_surface(self.sprite)
         cr.screen.blit(self.sprite, self.pos)
         if (self.pos[0]>1180+self.sprite.get_width()/2):
             self.crossed = True
@@ -128,6 +129,7 @@ class Player:
         self.throw_anim = []
         self.idle_anim = []
         self.pull_anim = []
+        self.bait_sprite = pygame.Surface([24, 24])
         for i in range(6):
             self.throw_anim.append(pygame.transform.flip(utils.scale_image(pg.image.load("assets/Spritesheets//throw/throw"+str(i)+".png").convert()), False, False))
             self.throw_anim[i].set_colorkey([0, 0, 0])
@@ -330,6 +332,7 @@ while not cr.event_holder.should_quit:
     wave_manager.update()
     if player.fishing and player.recreated:
         cr.screen.blit(player.rope_screen, (0, 0))
+        cr.screen.blit(player.bait_sprite, [player.rope.lowest_point.x, player.rope.lowest_point.y])
     fish_manager.update()
     #cr.screen.blit(pygame.transform.flip(cr.screen, True, False), (0, 0))
     pg.display.update()
