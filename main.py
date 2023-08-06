@@ -167,7 +167,7 @@ class Player:
         self.throw_anim = []
         self.idle_anim = []
         self.pull_anim = []
-        self.length_bar = pygame.Surface([225*1.8, 30])
+        self.length_bar = pygame.Surface([225*2.2, 30])
         self.length_bar.set_colorkey([0, 0, 0])
         self.length_bar.fill([255, 255, 255])
         
@@ -197,7 +197,7 @@ class Player:
         self.scores = []
         self.fish = 0
         self.rope = None
-        self.fishing_line_angle = 0
+        self.fishing_line_angle = 90
         self.fishing = False
         self.rope_screen = pygame.Surface([1280, 720])
         self.rope_screen.set_colorkey([0, 0, 0])
@@ -213,7 +213,7 @@ class Player:
         self.frame = -1
         self.delay = 0
         self.state = 0
-        self.length_bar_pos = [(self.pos[0]+self.boat_sprite.get_width()+15), 20]
+        self.length_bar_pos = [(1280-495)/2, 20]
         self.length_bar_outline = get_outline_mask(self.length_bar, self.length_bar_pos)
         self.length_bar.fill([0, 0, 0])
     def create_fishing_line(self):
@@ -254,7 +254,7 @@ class Player:
         elif self.state==2:
             cr.screen.blit(self.pull_anim[self.frame], [self.pos[0]+self.boat_sprite.get_width()-self.idle_anim[0].get_width()+20, self.pos[1]-10])
         self.draw_boat()
-        pygame.draw.rect(self.length_bar, [255, 255, 255], pygame.Rect(0, 0, self.line_length*1.8, 30))
+        pygame.draw.rect(self.length_bar, [255, 255, 255], pygame.Rect(0, 0, self.line_length*2.2, 30))
         cr.screen.blit(self.length_bar, self.length_bar_pos)
         pygame.draw.polygon(cr.screen,[255, 255, 255],self.length_bar_outline,3)
         
@@ -277,18 +277,12 @@ class Player:
                 self.y_points = []
                 self.state = 1
 
-            if (pg.K_RIGHT in pressed_keys):
-                self.line_length += 1
-                self.create_fishing_line()
-                self.prepare_fishing_line()
-                for i in range(1000):
-                    self.rope.update([mouse_collider], delta_time=cr.event_holder.dt/10)
-            if (pg.K_LEFT in pressed_keys):
-                self.line_length -= 1
-                self.create_fishing_line()
-                self.prepare_fishing_line()
-                for i in range(1000):
-                    self.rope.update([mouse_collider], delta_time=cr.event_holder.dt/10)
+            if (pg.K_RIGHT in pressed_keys) or (pg.K_RIGHT in held_keys):
+                self.fishing_line_angle -= 1
+                print(self.fishing_line_angle)
+            if (pg.K_LEFT in pressed_keys) or (pg.K_LEFT in held_keys):
+                self.fishing_line_angle += 1
+                print(self.fishing_line_angle)
             if self.recreated:
                 #print(self.rope.moving)
                 self.rope.draw(self.rope_screen)
@@ -297,7 +291,7 @@ class Player:
                     if (self.old_len-len(self.y_points) == 0):
                         self.moving = False
                     if not self.set_angle:
-                        self.fishing_line_angle = 0
+                        self.fishing_line_angle = 90
                         self.set_angle = True
                     if not self.moving:
                         self.cover_rect.y-=12
@@ -409,7 +403,7 @@ while not cr.event_holder.should_quit:
                     else:
                         cr.screen.blit(player.bait_sprite, [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.rope.lowest_point[1]])
                         pygame.draw.circle(cr.screen, [155, 173, 183], player.rope.lowest_point, 5*player.bait_slider.value)
-                print(player.rope.lowest_point[0]-player.rope.orig_pos[0])
+                print(player.rope.lowest_point[1]-player.rope.orig_pos[1])
     fish_manager.update()
     #cr.screen.blit(pygame.transform.flip(cr.screen, True, False), (0, 0))
     pg.display.update()
