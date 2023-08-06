@@ -1,6 +1,6 @@
 import pygame
 from core.vector_class import Vector2D as Vec
-from math import sqrt, degrees, radians, cos, sin, tan, pi, atan
+from math import sqrt, degrees, radians, cos, sin, tan, pi, atan, asin
 gravity_strength = Vec(78.4 * -30, 78.4 * 90)
 global resultant_gravitational_force
 resultant_gravitational_force = 7888.847824619258

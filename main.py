@@ -18,6 +18,7 @@ mouse_collider = Collider(0, 61.3)
 mouse_collider.size = 50
 fish_sprites = [pygame.image.load("assets/Spritesheets/fish1/fish-0001.png").convert(), pygame.image.load("assets/Spritesheets/fish1/fish-0002.png").convert(), pygame.image.load("assets/Spritesheets/fish1/fish-0003.png").convert()]
 fish_sprites = [utils.scale_image(f, 2) for f in fish_sprites]
+[sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites]
 def sawtooth_sample(amplitude, freq, samplerate, i):
     value = atan(tan(2.0 * pi * float(freq) * (float(i) / float(samplerate))))
     return amplitude * value
@@ -41,15 +42,15 @@ class Fish:
     def __init__(self, x, elevation, type_):
         self.pos = [x, elevation]
         self.orig_pos = [x, elevation]
-        
-        self.speed = 5
+        self.speed = 4
         self.crossed = False
-        self.pattern = random.randint(0, 2)
+        self.pattern = random.randint(0, 0)
         self.type = self.pattern
         self.stage = -1
-        self.adders = [5, 1, 0]
+        self.adders = [4, 1, 0]
         self.adding = False
         self.delay = 0
+        self.sprite = fish_sprites[self.type]
     def update(self):
         global square_wave
         self.stage+=self.adders[self.pattern]
@@ -60,6 +61,7 @@ class Fish:
         self.pos[0]+=self.speed
         if (self.pattern==0):
             self.pos[1]=self.orig_pos[1]+(sin(radians(self.stage))*60)
+            self.sprite = pygame.transform.flip(pygame.transform.rotate(fish_sprites[self.type], degrees(asin(sin(radians(self.stage))))), True, False)
         if (self.pattern==1):
             self.pos[1]=self.orig_pos[1]+(triangle_wave[self.stage])
         if (self.pattern==2):
@@ -69,19 +71,19 @@ class Fish:
                     self.stage=0
             self.pos[1]=self.orig_pos[1]+(square_wave[self.stage])*10
                     
-        cr.screen.blit(fish_sprites[self.type], self.pos)
-        if (self.pos[0]>1180+fish_sprites[self.type].get_width()/2):
+        cr.screen.blit(self.sprite, self.pos)
+        if (self.pos[0]>1180+self.sprite.get_width()/2):
             self.crossed = True
     def regen(self):
-        self.pos = [random.randint(-(1280+fish_sprites[self.type].get_width()), 0-fish_sprites[self.type].get_width()), random.randint(0, 150)]
+        self.pos = [random.randint(-(1280+fish_sprites[self.type].get_width()), 0-fish_sprites[self.type].get_width()), random.randint(475, 575)]
         self.crossed = False
-        self.pattern = random.randint(0, 2)
+        self.pattern = random.randint(0, 0)
         self.type = self.pattern
         self.stage = -1
         self.orig_pos=[self.pos[0], self.pos[1]]
 class FishManager:
     def __init__(self):
-        self.fishes = [Fish(random.randint(-1280, 0), random.randint(0, 150), random.randint(0, 1)) for i in range(20)]
+        self.fishes = [Fish(random.randint(-1280, 0), random.randint(475, 575), random.randint(0, 1)) for i in range(20)]
     def update(self):
         num_fish = -1
         for fish in self.fishes:
