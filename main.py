@@ -87,12 +87,12 @@ class Fish:
             if player.rope is not None:
                 if player.rope.lowest_point is not None:
                     if not player.recall_fishing_line:
-                        pass
+                        bait_pos = [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.rope.lowest_point[1]]
                     else:
                         if player.rope.lowest_point[1] > player.cover_rect.y:
-                            pass
+                            bait_pos = [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.cover_rect.y]
                         else:
-                            pass
+                            bait_pos = [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.rope.lowest_point[1]]
         cr.screen.blit(self.sprite[self.frame], self.pos)
         if (self.pos[0]<0):
             self.crossed = True
@@ -146,6 +146,10 @@ class Slider:
         self.slider_rect = pygame.Rect(self.pos[0]+self.x_offset, self.pos[1]-10, 20, 40)
         if self.overall_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             self.x_offset = pygame.mouse.get_pos()[0]-self.pos[0]
+        if pygame.K_a in pressed_keys:
+            self.x_offset-=10
+        if pygame.K_d in pressed_keys:
+            self.x_offset+=10
         if self.x_offset > 100:
             self.x_offset = 100
         if self.x_offset < 70:
