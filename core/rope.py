@@ -3,10 +3,10 @@ from core.vector_class import Vector2D as Vec
 from math import sqrt, degrees, radians, cos, sin, tan, pi, atan, asin
 gravity_strength = Vec(78.4 * -30, 78.4 * 90)
 global resultant_gravitational_force
-resultant_gravitational_force = 12000
+resultant_gravitational_force = 10000
 class World:
     
-    max_point_speed = 20
+    max_point_speed = 15
 
 
 class Settings:
