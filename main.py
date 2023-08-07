@@ -16,14 +16,16 @@ cr.event_holder.determined_fps = 60
 global mouse_collider
 mouse_collider = Collider(0, 61.3)
 mouse_collider.size = 50
-fish_sprites = [[pygame.image.load("assets/Spritesheets/fish1/fish-000"+str(i)+".png").convert() for i in range(1, 4)], [pygame.image.load("assets/Spritesheets/fish3/fish-000"+str(i)+".png").convert() for i in range(1, 4)], [pygame.image.load("assets/Spritesheets/fish2/fish2-00"+str(i)+".png").convert() for i in range(3)]]
+fish_sprites = [[pygame.image.load("assets/Spritesheets/fish1/fish-000"+str(i)+".png").convert() for i in range(1, 4)], [pygame.image.load("assets/Spritesheets/fish3/fish-000"+str(i)+".png").convert() for i in range(1, 4)], [pygame.image.load("assets/Spritesheets/fish4/fish-000"+str(i)+".png").convert() for i in range(1, 4)], [pygame.image.load("assets/Spritesheets/fish2/fish2-00"+str(i)+".png").convert() for i in range(3)]]
 fish_sprites[0] = [utils.scale_image(f, 3) for f in fish_sprites[0]]
 fish_sprites[1] = [utils.scale_image(f, 3) for f in fish_sprites[1]]
 fish_sprites[2] = [utils.scale_image(f, 3) for f in fish_sprites[2]]
+fish_sprites[3] = [utils.scale_image(f, 3) for f in fish_sprites[3]]
 [utils.swap_color(sprite, [102, 57, 49], [0, 0, 0]) for sprite in fish_sprites[0]]
 [sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites[0]]
 [sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites[1]]
 [sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites[2]]
+[sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites[3]]
 pygame.init()
 pygame.mixer.Channel(0).play(pygame.mixer.Sound('assets/Audio/background_track.wav'), -1)
 pygame.mixer.Channel(0).set_volume(0.7)
@@ -70,12 +72,18 @@ class Fish:
         self.alpha_surf = pygame.Surface([self.sprite[0].get_width(), self.sprite[0].get_height()])
         self.alpha_surf.fill([0, 0, 0])
         self.alpha = 0
+        self.score = 1
         if self.food_req == 8:
             self.alpha = 0
+            self.score = 1
         if self.food_req == 9:
             self.alpha = 60
+            self.score = 0.6
         if self.food_req == 10:
             self.alpha = 120
+            self.score = 0.3
+        if self.type == len(fish_sprites)-1:
+            self.score+=2
         self.alpha_surf.set_alpha(self.alpha)
         [self.sprite[n].blit(self.alpha_surf, [0, 0]) for n in range(len(self.sprite))]
     def update(self):
@@ -115,10 +123,10 @@ class Fish:
                             bait_pos = [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.cover_rect.y]
                         else:
                             bait_pos = [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.rope.lowest_point[1]]
-                    if self.masks[self.frame].overlap(player.bait_mask, [bait_pos[0]-self.pos[0], bait_pos[1]-self.pos[1]])!=None and ((not player.fished) or (self.caught)) :
+                    if self.masks[self.frame].overlap(player.bait_mask, [bait_pos[0]-self.pos[0], bait_pos[1]-self.pos[1]])!=None and ((not player.fished) or (self.caught)) and player.bait_slider.value*10==self.food_req:
                         self.pos = bait_pos
                         if not self.caught:
-                            player.fish+=1
+                            player.fish+=self.score
                             player.fished = True
                         self.caught = True
         if self.masks[self.frame].overlap(player.mask, [player.player_pos[0]-self.pos[0], player.player_pos[1]-self.pos[1]])!=None:
@@ -176,9 +184,9 @@ class Slider:
         self.slider_rect = pygame.Rect(self.pos[0]+self.x_offset, self.pos[1]-10, 20, 40)
         if self.overall_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             self.x_offset = pygame.mouse.get_pos()[0]-self.pos[0]
-        if pygame.K_a in pressed_keys:
+        if ((pg.K_LSHIFT in pressed_keys) or (pg.K_RSHIFT in pressed_keys)):
             self.x_offset-=10
-        if pygame.K_d in pressed_keys:
+        if ((pg.K_LCTRL in pressed_keys) or (pg.K_RCTRL in pressed_keys)):
             self.x_offset+=10
         if self.x_offset > 100:
             self.x_offset = 100
@@ -328,10 +336,10 @@ class Player:
             if not (self.rope.lowest_point[0] in self.y_points):
                 self.y_points.append(self.rope.lowest_point[0])
             #self.moving = True
-            if cr.event_holder.mouse_held_keys[0] and ((pg.K_LSHIFT in held_keys) or (pg.K_RSHIFT in held_keys)) and not self.recreated:
+            if cr.event_holder.mouse_held_keys[0] and (pg.K_UP in held_keys) and not self.recreated:
                 if (self.line_length<225):
                     self.line_length+=3
-            if cr.event_holder.mouse_held_keys[0] and ((pg.K_LCTRL in held_keys) or (pg.K_RCTRL in held_keys)) and not self.recreated:
+            if cr.event_holder.mouse_held_keys[0] and (pg.K_DOWN in held_keys) and not self.recreated:
                 if (self.line_length>70):
                     self.line_length-=3
         
