@@ -159,9 +159,7 @@ class FishManager:
             if not fish.crossed:
                 fish.update()
             else:
-                self.fishes.remove(self.fishes[num_fish])
-        if len(self.fishes) == 0:
-            self.fishes = [Fish(random.randint(1280, 1280*2), random.randint(475, 575), random.randint(0, 1)) for i in range(8)]
+                self.fishes[num_fish].__init__(random.randint(1280, 1280*2), random.randint(475, 575), random.randint(0, 1))
 
 fish_manager = FishManager()
 def outline_mask(img, loc, color=[255,255,255]):
@@ -314,8 +312,8 @@ class Player:
         self.bait_mask = pygame.mask.from_surface(self.bait_sprite)
         self.angle_pointer = utils.scale_image(pygame.transform.flip(pygame.image.load("assets/Spritesheets/arrow.png").convert(), True, False))
         self.angle_pointer.set_colorkey([255, 255, 255])
-        self.time_lims = [15, 12, 10, 8, 5]
-        self.num_fish = [7, 5, 4, 4, 3]
+        self.time_lims = [15, 12, 8, 5]
+        self.num_fish = [5, 4, 3, 2]
         self.level = 0
         self.time_bar = pygame.Surface([1240, 20])
         self.time_bar_pos = [20, 10]
@@ -564,8 +562,7 @@ while not cr.event_holder.should_quit:
             player.update()
     wave_manager.update()
     if game_state == 1:
-        if screenshot != None:
-            cr.screen.blit(screenshot, [0, 0])
+        
         if win_state == None:
             if player.fishing and player.recreated:
                 cr.screen.blit(player.rope_screen, (0, 0))
@@ -590,6 +587,14 @@ while not cr.event_holder.should_quit:
                     alph_surf = pygame.Surface([1280, 720])
                     alph_surf.set_alpha(128)
                     screenshot.blit(alph_surf, [0, 0])
+        if screenshot != None:
+            cr.screen.blit(screenshot, [0, 0])
+            if pg.K_ESCAPE in held_keys:
+                game_state = 0
+                player.__init__()
+                fish_manager.__init__()
+                screenshot = None
+                win_state = None
     else:
         cr.screen.blit(title_text, [(1280-title_text.get_width())/2, (720-title_text.get_height())/2-75])
         start_button.update()
