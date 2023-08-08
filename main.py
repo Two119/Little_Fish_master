@@ -42,6 +42,8 @@ lose_text = yoster_font.render("You Lost!", True, [255, 255 ,255], [0, 0, 0])
 lose_text.set_colorkey([0, 0, 0])
 lose_text2 = button_font.render("Press Escape to return to Menu", True, [255, 255 ,255], [0, 0, 0])
 lose_text2.set_colorkey([0, 0, 0])
+lose_text3 = button_font.render("and click Play to start next level", True, [255, 255 ,255], [0, 0, 0])
+lose_text3.set_colorkey([0, 0, 0])
 length_text = pygame.font.Font('assets/Fonts/yoster.ttf', 24)
 length_text = time_font.render("Length", False, [1, 1 ,1], [0, 0, 0])
 length_text.set_colorkey([0, 0, 0])
@@ -606,9 +608,10 @@ while not cr.event_holder.should_quit:
             if win_state == 1:
                 if player.level < len(player.num_fish)-1:
                     cr.screen.blit(win_text, [(1280-win_text.get_width())/2, (720-win_text.get_height())/2])
+                    cr.screen.blit(lose_text3, [(1280-lose_text3.get_width())/2, (720-lose_text2.get_height())/2+150])
                 else:
                     cr.screen.blit(win_game_text, [(1280-win_game_text.get_width())/2, (720-win_game_text.get_height())/2])
-            if win_state == 0:
+            if win_state == 0:                
                 cr.screen.blit(lose_text, [(1280-lose_text.get_width())/2, (720-lose_text.get_height())/2])
             cr.screen.blit(lose_text2, [(1280-lose_text2.get_width())/2, (720-lose_text2.get_height())/2+100])
             if pg.K_ESCAPE in held_keys:
