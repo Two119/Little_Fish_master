@@ -36,6 +36,8 @@ time_text = time_font.render("Time", False, [1, 1 ,1], [0, 0, 0])
 time_text.set_colorkey([0, 0, 0])
 win_text = yoster_font.render("You Won!", True, [255, 255 ,255], [0, 0, 0])
 win_text.set_colorkey([0, 0, 0])
+win_game_text = yoster_font.render("You Beat the Game!", True, [255, 255 ,255], [0, 0, 0])
+win_game_text.set_colorkey([0, 0, 0])
 lose_text = yoster_font.render("You Lost!", True, [255, 255 ,255], [0, 0, 0])
 lose_text.set_colorkey([0, 0, 0])
 lose_text2 = button_font.render("Press Escape to return to Menu", True, [255, 255 ,255], [0, 0, 0])
@@ -588,7 +590,6 @@ while not cr.event_holder.should_quit:
                     screenshot.blit(alph_surf, [0, 0])
             if (player.time <= 15) and player.fish >= player.num_fish[player.level]:
                 win_state = 1
-                print('won')
                 if screenshot == None:
                     screenshot = cr.screen.copy()
                     alph_surf = pygame.Surface([1280, 720])
@@ -597,7 +598,10 @@ while not cr.event_holder.should_quit:
         if screenshot != None:
             cr.screen.blit(screenshot, [0, 0])
             if win_state == 1:
-                cr.screen.blit(win_text, [(1280-win_text.get_width())/2, (720-win_text.get_height())/2])
+                if player.level < len(player.num_fish)-1:
+                    cr.screen.blit(win_text, [(1280-win_text.get_width())/2, (720-win_text.get_height())/2])
+                else:
+                    cr.screen.blit(win_game_text, [(1280-win_game_text.get_width())/2, (720-win_game_text.get_height())/2])
             if win_state == 0:
                 cr.screen.blit(lose_text, [(1280-lose_text.get_width())/2, (720-lose_text.get_height())/2])
             cr.screen.blit(lose_text2, [(1280-lose_text2.get_width())/2, (720-lose_text2.get_height())/2+100])
@@ -607,7 +611,10 @@ while not cr.event_holder.should_quit:
                 fish_manager.__init__()
                 screenshot = None
                 if win_state == 1:
-                    player.levels+=1
+                    if player.level < len(player.num_fish)-1:
+                        player.level +=1
+                    else:
+                        player.level = 0
                 win_state = None
     else:
         cr.screen.blit(title_text, [(1280-title_text.get_width())/2, (720-title_text.get_height())/2-75])
