@@ -34,6 +34,12 @@ button_font = pygame.font.Font('assets/Fonts/yoster.ttf', 35)
 time_font = pygame.font.Font('assets/Fonts/yoster.ttf', 16)
 time_text = time_font.render("Time", False, [1, 1 ,1], [0, 0, 0])
 time_text.set_colorkey([0, 0, 0])
+win_text = yoster_font.render("You Won!", True, [255, 255 ,255], [0, 0, 0])
+win_text.set_colorkey([0, 0, 0])
+lose_text = yoster_font.render("You Lost!", True, [255, 255 ,255], [0, 0, 0])
+lose_text.set_colorkey([0, 0, 0])
+lose_text2 = button_font.render("Press Escape to return to Menu", True, [255, 255 ,255], [0, 0, 0])
+lose_text2.set_colorkey([0, 0, 0])
 length_text = pygame.font.Font('assets/Fonts/yoster.ttf', 24)
 length_text = time_font.render("Length", False, [1, 1 ,1], [0, 0, 0])
 length_text.set_colorkey([0, 0, 0])
@@ -159,7 +165,7 @@ class FishManager:
             if not fish.crossed:
                 fish.update()
             else:
-                self.fishes[num_fish].__init__(random.randint(1280, 1280*2), random.randint(475, 575), random.randint(0, 1))
+                self.fishes[num_fish].__init__(1380, random.randint(475, 575), random.randint(0, 1))
 
 fish_manager = FishManager()
 def outline_mask(img, loc, color=[255,255,255]):
@@ -312,8 +318,8 @@ class Player:
         self.bait_mask = pygame.mask.from_surface(self.bait_sprite)
         self.angle_pointer = utils.scale_image(pygame.transform.flip(pygame.image.load("assets/Spritesheets/arrow.png").convert(), True, False))
         self.angle_pointer.set_colorkey([255, 255, 255])
-        self.time_lims = [15, 12, 8, 5]
-        self.num_fish = [5, 4, 3, 2]
+        self.time_lims = [15, 20, 25, 30]
+        self.num_fish = [3, 4, 5, 7]
         self.level = 0
         self.time_bar = pygame.Surface([1240, 20])
         self.time_bar_pos = [20, 10]
@@ -582,6 +588,7 @@ while not cr.event_holder.should_quit:
                     screenshot.blit(alph_surf, [0, 0])
             if (player.time <= 15) and player.fish >= player.num_fish[player.level]:
                 win_state = 1
+                print('won')
                 if screenshot == None:
                     screenshot = cr.screen.copy()
                     alph_surf = pygame.Surface([1280, 720])
@@ -589,11 +596,18 @@ while not cr.event_holder.should_quit:
                     screenshot.blit(alph_surf, [0, 0])
         if screenshot != None:
             cr.screen.blit(screenshot, [0, 0])
+            if win_state == 1:
+                cr.screen.blit(win_text, [(1280-win_text.get_width())/2, (720-win_text.get_height())/2])
+            if win_state == 0:
+                cr.screen.blit(lose_text, [(1280-lose_text.get_width())/2, (720-lose_text.get_height())/2])
+            cr.screen.blit(lose_text2, [(1280-lose_text2.get_width())/2, (720-lose_text2.get_height())/2+100])
             if pg.K_ESCAPE in held_keys:
                 game_state = 0
                 player.__init__()
                 fish_manager.__init__()
                 screenshot = None
+                if win_state == 1:
+                    player.levels+=1
                 win_state = None
     else:
         cr.screen.blit(title_text, [(1280-title_text.get_width())/2, (720-title_text.get_height())/2-75])
