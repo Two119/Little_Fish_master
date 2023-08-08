@@ -9,6 +9,10 @@ global square_wave
 square_wave = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4, 6, 8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 8, 6, 4, 2, 0]
 global yoster_font
 cr.screen = pg.display.set_mode([1280, 720])
+pg.display.set_caption("Tanoko's fishing")
+icon =  pygame.image.load("icon.png")
+icon.set_colorkey([0, 0, 0])
+pg.display.set_icon(icon)
 """
 event holder takes care of getting the events and
 the game's fps
@@ -552,9 +556,9 @@ def end(any):
 global win_state
 win_state = None
 button_sprites = utils.SpriteSheet(utils.scale_image(pygame.image.load("assets/Spritesheets/buttons.png").convert(), 6), [2, 1])
-start_button = Button([(1280-button_sprites.sheet[0][0].get_width())/2, (720-title_text.get_height())/2+25], [button_sprites.sheet[0][i].copy() for i in range(len(button_sprites.sheet[0]))], [start, 1])
-credits_button = Button([(1280-button_sprites.sheet[0][0].get_width())/2, (720-title_text.get_height())/2+125], [button_sprites.sheet[0][i].copy() for i in range(len(button_sprites.sheet[0]))], [credit, 1])
-end_button = Button([(1280-button_sprites.sheet[0][0].get_width())/2, (720-title_text.get_height())/2+225], [button_sprites.sheet[0][i].copy() for i in range(len(button_sprites.sheet[0]))], [end, 1])
+start_button = Button([(button_sprites.sheet[0][0].get_width())/2, (500-title_text.get_height())/2+25], [button_sprites.sheet[0][i].copy() for i in range(len(button_sprites.sheet[0]))], [start, 1])
+credits_button = Button([(button_sprites.sheet[0][0].get_width())/2, (500-title_text.get_height())/2+125], [button_sprites.sheet[0][i].copy() for i in range(len(button_sprites.sheet[0]))], [credit, 1])
+end_button = Button([(button_sprites.sheet[0][0].get_width())/2, (500-title_text.get_height())/2+225], [button_sprites.sheet[0][i].copy() for i in range(len(button_sprites.sheet[0]))], [end, 1])
 start_button.textures[0].blit(start_text, [(start_button.textures[0].get_width()-start_text.get_width())/2, (start_button.textures[0].get_height()-start_text.get_height())/2])
 start_button.textures[1].blit(start_text, [(start_button.textures[0].get_width()-start_text.get_width())/2, (start_button.textures[0].get_height()-start_text.get_height())/2+4])
 credits_button.textures[0].blit(cred_text, [(credits_button.textures[0].get_width()-cred_text.get_width())/2, (credits_button.textures[0].get_height()-cred_text.get_height())/2])
@@ -562,6 +566,7 @@ credits_button.textures[1].blit(cred_text, [(credits_button.textures[0].get_widt
 end_button.textures[0].blit(quit_text, [(end_button.textures[0].get_width()-quit_text.get_width())/2, (end_button.textures[0].get_height()-quit_text.get_height())/2])
 end_button.textures[1].blit(quit_text, [(end_button.textures[0].get_width()-quit_text.get_width())/2, (end_button.textures[0].get_height()-quit_text.get_height())/2+4])
 screenshot = None
+cover = utils.scale_image(pygame.image.load("cover.png"))
 while not cr.event_holder.should_quit:
     cr.screen.fill((120, 171, 200))
     cr.event_holder.get_events()
@@ -626,7 +631,8 @@ while not cr.event_holder.should_quit:
                         player.level = 0
                 win_state = None
     else:
-        cr.screen.blit(title_text, [(1280-title_text.get_width())/2, (720-title_text.get_height())/2-75])
+        cr.screen.blit(cover, [0 ,0])
+        #cr.screen.blit(title_text, [(1280-title_text.get_width())/2, (720-title_text.get_height())/2-75])
         start_button.update()
         credits_button.update()
         end_button.update()
