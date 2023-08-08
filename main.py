@@ -261,7 +261,7 @@ class Player:
         self.rope_pull_positions = [[get_pixel(sprite, [103, 57, 49])[0]+self.player_pos[0], get_pixel(sprite, [103, 57, 49])[1]+self.player_pos[1]] for sprite in self.pull_anim]
         self.idle_pos = [get_pixel(self.idle_anim[0], [103, 57, 49])[0]+self.player_pos[0], get_pixel(self.idle_anim[0], [103, 57, 49])[1]+self.player_pos[1]]
         self.delays = [12, 8, 8]
-        self.bait_mask = None
+        self.bait_mask = pygame.mask.from_surface(self.bait_sprite)
         self.angle_pointer = utils.scale_image(pygame.transform.flip(pygame.image.load("assets/Spritesheets/arrow.png").convert(), True, False))
         self.angle_pointer.set_colorkey([255, 255, 255])
     def create_fishing_line(self):
@@ -471,8 +471,6 @@ while not cr.event_holder.should_quit:
         cr.screen.blit(player.rope_screen, (0, 0))
         if player.rope is not None:
             if player.rope.lowest_point is not None:
-                player.bait_sprite = player.orig_bait_sprite
-                player.bait_mask = pygame.mask.from_surface(player.bait_sprite)
                 cr.screen.blit(player.bait_sprite, [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.rope.lowest_point[1]])
                 pygame.draw.circle(cr.screen, [155, 173, 183], player.rope.lowest_point, 5*1)
                 #print(player.rope.lowest_point[1]-player.rope.orig_pos[1])
