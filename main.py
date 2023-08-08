@@ -327,7 +327,7 @@ class Player:
         self.time_bar_pos = [20, 10]
         self.time_bar_outline = get_outline_mask(self.time_bar, self.time_bar_pos)
         self.time_bar.set_colorkey([0, 0, 0])
-        self.time_bar.blit(time_text, [(1240-time_text.get_width())/2, (20-time_text.get_height())/2])
+        #self.time_bar.blit(time_text, [(1240-time_text.get_width())/2, (20-time_text.get_height())/2])
         self.length_bar.blit(length_text, [(self.length_bar.get_width()-length_text.get_width())/2, (self.length_bar.get_height()-length_text.get_height())/2])
         self.time = time.time()
         self.orig_time = time.time()
@@ -391,9 +391,15 @@ class Player:
         pygame.draw.polygon(cr.screen,[255, 255, 255],self.length_bar_outline,3)
         self.time = time.time()-self.orig_time
         pygame.draw.rect(self.time_bar, [255, 255, 255], pygame.FRect(0, 0, self.time*(1240/self.time_lims[self.level]), 30))
+        time_text = time_font.render("Time : "+str(round(self.time))+" out of " +str(self.time_lims[self.level])+ " s", False, [1, 1 ,1], [0, 0, 0])
+        time_text.set_colorkey([0, 0, 0])
+        fish_text = time_font.render("Fish : "+str(self.fish)+" out of " +str(self.num_fish[self.level]), False, [1, 1 ,1], [0, 0, 0])
+        fish_text.set_colorkey([0, 0, 0])
         self.time_bar.blit(time_text, [(1240-time_text.get_width())/2, (20-time_text.get_height())/2])
         cr.screen.blit(self.time_bar, self.time_bar_pos)
+        self.time_bar.fill([0, 0, 0])
         pygame.draw.polygon(cr.screen,[255, 255, 255],self.time_bar_outline,3)
+        cr.screen.blit(fish_text, [(1280-fish_text.get_width())/2, self.length_bar_pos[1]+50])
         if self.fishing:
             self.rope_screen.fill([0, 0, 0])
             self.prepare_fishing_line()
