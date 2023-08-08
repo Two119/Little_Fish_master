@@ -30,8 +30,21 @@ fish_sprites[3] = [utils.scale_image(f, 3) for f in fish_sprites[3]]
 [sprite.set_colorkey([0, 0, 0]) for sprite in fish_sprites[3]]
 pygame.init()
 yoster_font = pygame.font.Font('assets/Fonts/yoster.ttf', 64)
+button_font = pygame.font.Font('assets/Fonts/yoster.ttf', 35)
+time_font = pygame.font.Font('assets/Fonts/yoster.ttf', 16)
+time_text = time_font.render("Time", False, [1, 1 ,1], [0, 0, 0])
+time_text.set_colorkey([0, 0, 0])
+length_text = pygame.font.Font('assets/Fonts/yoster.ttf', 24)
+length_text = time_font.render("Length", False, [1, 1 ,1], [0, 0, 0])
+length_text.set_colorkey([0, 0, 0])
 title_text = yoster_font.render("Little Fish", True, [255, 255 ,255], [0, 0, 0])
 title_text.set_colorkey([0, 0, 0])
+start_text = button_font.render("Play", True, [255, 255 ,255], [0, 0, 0])
+start_text.set_colorkey([0, 0, 0])
+cred_text = button_font.render("Credits", True, [255, 255 ,255], [0, 0, 0])
+cred_text.set_colorkey([0, 0, 0])
+quit_text = button_font.render("Quit", True, [255, 255 ,255], [0, 0, 0])
+quit_text.set_colorkey([0, 0, 0])
 pygame.mixer.Channel(0).play(pygame.mixer.Sound('assets/Audio/background_track.wav'), -1)
 pygame.mixer.Channel(0).set_volume(0.7)
 pygame.mixer.Channel(1).play(pygame.mixer.Sound('assets/Audio/waves.wav'), -1)
@@ -288,7 +301,7 @@ class Player:
         self.frame = -1
         self.delay = 0
         self.state = 0
-        self.length_bar_pos = [(1280-495)/2, 20]
+        self.length_bar_pos = [(1280-495)/2, 50]
         self.length_bar_outline = get_outline_mask(self.length_bar, self.length_bar_pos)
         self.length_bar.fill([0, 0, 0])
         self.casting_sound = pygame.mixer.Sound('assets/Audio/casting.wav')
@@ -302,8 +315,16 @@ class Player:
         self.angle_pointer = utils.scale_image(pygame.transform.flip(pygame.image.load("assets/Spritesheets/arrow.png").convert(), True, False))
         self.angle_pointer.set_colorkey([255, 255, 255])
         self.time_lims = [15, 12, 10, 8, 5]
-        self.num_fish = [8, 8, 7, 5, 3]
+        self.num_fish = [7, 5, 4, 4, 3]
         self.level = 0
+        self.time_bar = pygame.Surface([1240, 20])
+        self.time_bar_pos = [20, 10]
+        self.time_bar_outline = get_outline_mask(self.time_bar, self.time_bar_pos)
+        self.time_bar.set_colorkey([0, 0, 0])
+        self.time_bar.blit(time_text, [(1240-time_text.get_width())/2, (20-time_text.get_height())/2])
+        self.length_bar.blit(length_text, [(self.length_bar.get_width()-length_text.get_width())/2, (self.length_bar.get_height()-length_text.get_height())/2])
+        self.time = time.time()
+        self.orig_time = time.time()
     def create_fishing_line(self):
         self.rope = Rope(self.rope_throw_positions[0][0], self.rope_throw_positions[0][0], self.line_length, self.line_length//11)
     def prepare_fishing_line(self):
@@ -359,9 +380,14 @@ class Player:
             self.mask = pygame.mask.from_surface(self.pull_anim[self.frame])
         self.draw_boat()
         pygame.draw.rect(self.length_bar, [255, 255, 255], pygame.Rect(0, 0, self.line_length*2.2, 30))
+        self.length_bar.blit(length_text, [(self.length_bar.get_width()-length_text.get_width())/2, (self.length_bar.get_height()-length_text.get_height())/2])
         cr.screen.blit(self.length_bar, self.length_bar_pos)
         pygame.draw.polygon(cr.screen,[255, 255, 255],self.length_bar_outline,3)
-        
+        self.time = time.time()-self.orig_time
+        pygame.draw.rect(self.time_bar, [255, 255, 255], pygame.FRect(0, 0, self.time*(1240/self.time_lims[self.level]), 30))
+        self.time_bar.blit(time_text, [(1240-time_text.get_width())/2, (20-time_text.get_height())/2])
+        cr.screen.blit(self.time_bar, self.time_bar_pos)
+        pygame.draw.polygon(cr.screen,[255, 255, 255],self.time_bar_outline,3)
         if self.fishing:
             self.rope_screen.fill([0, 0, 0])
             self.prepare_fishing_line()
@@ -509,10 +535,19 @@ def credit(any):
     webbrowser.open("credits.txt")
 def end(any):
     raise SystemExit
+global win_state
+win_state = None
 button_sprites = utils.SpriteSheet(utils.scale_image(pygame.image.load("assets/Spritesheets/buttons.png").convert(), 6), [2, 1])
-start_button = Button([(1280-button_sprites.sheet[0][0].get_width())/2, (720-title_text.get_height())/2+25], button_sprites.sheet[0], [start, 1])
-credits_button = Button([(1280-button_sprites.sheet[0][0].get_width())/2, (720-title_text.get_height())/2+125], button_sprites.sheet[0], [credit, 1])
-end_button = Button([(1280-button_sprites.sheet[0][0].get_width())/2, (720-title_text.get_height())/2+225], button_sprites.sheet[0], [end, 1])
+start_button = Button([(1280-button_sprites.sheet[0][0].get_width())/2, (720-title_text.get_height())/2+25], [button_sprites.sheet[0][i].copy() for i in range(len(button_sprites.sheet[0]))], [start, 1])
+credits_button = Button([(1280-button_sprites.sheet[0][0].get_width())/2, (720-title_text.get_height())/2+125], [button_sprites.sheet[0][i].copy() for i in range(len(button_sprites.sheet[0]))], [credit, 1])
+end_button = Button([(1280-button_sprites.sheet[0][0].get_width())/2, (720-title_text.get_height())/2+225], [button_sprites.sheet[0][i].copy() for i in range(len(button_sprites.sheet[0]))], [end, 1])
+start_button.textures[0].blit(start_text, [(start_button.textures[0].get_width()-start_text.get_width())/2, (start_button.textures[0].get_height()-start_text.get_height())/2])
+start_button.textures[1].blit(start_text, [(start_button.textures[0].get_width()-start_text.get_width())/2, (start_button.textures[0].get_height()-start_text.get_height())/2+4])
+credits_button.textures[0].blit(cred_text, [(credits_button.textures[0].get_width()-cred_text.get_width())/2, (credits_button.textures[0].get_height()-cred_text.get_height())/2])
+credits_button.textures[1].blit(cred_text, [(credits_button.textures[0].get_width()-cred_text.get_width())/2, (credits_button.textures[0].get_height()-cred_text.get_height())/2+4])
+end_button.textures[0].blit(quit_text, [(end_button.textures[0].get_width()-quit_text.get_width())/2, (end_button.textures[0].get_height()-quit_text.get_height())/2])
+end_button.textures[1].blit(quit_text, [(end_button.textures[0].get_width()-quit_text.get_width())/2, (end_button.textures[0].get_height()-quit_text.get_height())/2+4])
+screenshot = None
 while not cr.event_holder.should_quit:
     cr.screen.fill((120, 171, 200))
     cr.event_holder.get_events()
@@ -525,18 +560,36 @@ while not cr.event_holder.should_quit:
     cloud_manager.update()
     #print(cr.event_holder.final_fps)
     if game_state == 1:
-        player.update()
+        if win_state == None:
+            player.update()
     wave_manager.update()
     if game_state == 1:
-        if player.fishing and player.recreated:
-            cr.screen.blit(player.rope_screen, (0, 0))
-            if player.rope is not None:
-                if player.rope.lowest_point is not None:
-                    cr.screen.blit(player.bait_sprite, [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.rope.lowest_point[1]])
-                    pygame.draw.circle(cr.screen, [155, 173, 183], player.rope.lowest_point, 5*1)
-                    #print(player.fishing_line_angle, (utils.angle_between([player.idle_pos, player.rope.lowest_point])//1))
-                    #print(player.rope.lowest_point[1]-player.rope.orig_pos[1])
-        fish_manager.update()
+        if screenshot != None:
+            cr.screen.blit(screenshot, [0, 0])
+        if win_state == None:
+            if player.fishing and player.recreated:
+                cr.screen.blit(player.rope_screen, (0, 0))
+                if player.rope is not None:
+                    if player.rope.lowest_point is not None:
+                        cr.screen.blit(player.bait_sprite, [player.rope.lowest_point[0]-player.bait_sprite.get_width()/2, player.rope.lowest_point[1]])
+                        pygame.draw.circle(cr.screen, [155, 173, 183], player.rope.lowest_point, 5*1)
+                        #print(player.fishing_line_angle, (utils.angle_between([player.idle_pos, player.rope.lowest_point])//1))
+                        #print(player.rope.lowest_point[1]-player.rope.orig_pos[1])
+            fish_manager.update()
+            if (player.time > 15) and win_state == None:
+                win_state = 0
+                if screenshot == None:
+                    screenshot = cr.screen.copy()
+                    alph_surf = pygame.Surface([1280, 720])
+                    alph_surf.set_alpha(128)
+                    screenshot.blit(alph_surf, [0, 0])
+            if (player.time <= 15) and player.fish >= player.num_fish[player.level]:
+                win_state = 1
+                if screenshot == None:
+                    screenshot = cr.screen.copy()
+                    alph_surf = pygame.Surface([1280, 720])
+                    alph_surf.set_alpha(128)
+                    screenshot.blit(alph_surf, [0, 0])
     else:
         cr.screen.blit(title_text, [(1280-title_text.get_width())/2, (720-title_text.get_height())/2-75])
         start_button.update()
