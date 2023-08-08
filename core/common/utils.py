@@ -31,8 +31,8 @@ def swap_color(img, col1, col2):
     pg.transform.threshold(img, img, col1, (10, 10, 10), col2, 1, None, True)
 
 
-def angle_to(points):
-    return math.atan2(points[1][1] - points[0][1], points[1][0] - points[0][0])
+def angle_between(points):
+    return math.atan2(points[1][1] - points[0][1], points[1][0] - points[0][0])*180/math.pi
 
 
 # clip function from daflufflyportato

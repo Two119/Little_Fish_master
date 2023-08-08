@@ -84,7 +84,7 @@ class EventHolder:
             if i.type == WINDOWENTER or MOUSEMOTION:
                 self.mouse_pos = Vector2(pg.mouse.get_pos())
 
-            if i.type == QUIT or i.type == KEYDOWN and i.key == K_ESCAPE:
+            if i.type == QUIT:
                 self.should_quit = True
 
             if i.type == MOUSEMOTION:
