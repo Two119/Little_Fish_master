@@ -599,7 +599,7 @@ while not cr.event_holder.should_quit:
                         #print(player.fishing_line_angle, (utils.angle_between([player.idle_pos, player.rope.lowest_point])//1))
                         #print(player.rope.lowest_point[1]-player.rope.orig_pos[1])
             fish_manager.update()
-            if (player.time > 15) and win_state == None:
+            if (player.time > player.time_lims[level]) and win_state == None:
                 win_state = 0
                 if screenshot == None:
                     screenshot = cr.screen.copy()
