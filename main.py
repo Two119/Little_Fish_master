@@ -606,7 +606,7 @@ while not cr.event_holder.should_quit:
                     alph_surf = pygame.Surface([1280, 720])
                     alph_surf.set_alpha(128)
                     screenshot.blit(alph_surf, [0, 0])
-            if (player.time <= 15) and player.fish >= player.num_fish[player.level]:
+            if (player.time <= player.time_lims[level]) and player.fish >= player.num_fish[player.level]:
                 win_state = 1
                 if screenshot == None:
                     screenshot = cr.screen.copy()
