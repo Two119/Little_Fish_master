@@ -155,7 +155,10 @@ class Fish:
                     if (self.masks[self.frame].overlap(player.bait_mask, [bait_pos[0]-self.pos[0], bait_pos[1]-self.pos[1]])!=None and ((not player.fished))) or (self.caught):
                         self.pos = bait_pos
                         if not self.caught:
-                            player.fish+=1
+                            if self.type!=len(fish_sprites)-1:
+                                player.fish+=1
+                            else:
+                                player.fish+=2
                             player.fished = True
                         self.caught = True
         if self.masks[self.frame].overlap(player.mask, [player.player_pos[0]-self.pos[0], player.player_pos[1]-self.pos[1]])!=None:
@@ -244,6 +247,7 @@ class Button:
         self.click_delay = 0
         self.max_delay = 500
         self.delaying = False
+        self.clicksound = pygame.mixer.Sound("assets/Audio/click.ogg")
     def update(self):
         self.current = 0
         if self.delaying:
@@ -254,6 +258,7 @@ class Button:
             if pygame.mouse.get_pressed()[0]:
                 if not self.delaying:
                     self.onlick(self.args)
+                    self.clicksound.play()
             self.current = 1
         self.screen.blit(self.textures[self.current], self.pos)
         self.rect = self.textures[self.current].get_rect(topleft=self.pos)
@@ -478,12 +483,7 @@ class Player:
                     self.winding_sound.play()
                     #self.fishing = False
         #self.bait_slider.update()
-        if pg.K_ESCAPE in held_keys:
-            global game_state
-            game_state = 0
-            self.__init__()
-            fish_manager.__init__()
-            return
+
 #103
 cloud_sprites = [utils.scale_image(pygame.image.load("assets/Spritesheets//bg/cloud1.png").convert(), 2), utils.scale_image(pygame.image.load("assets/Spritesheets//bg/cloud2.png").convert(), 1)]
 for cloud_sprite in cloud_sprites:
@@ -545,10 +545,15 @@ ocean_color = [99, 155, 255]
 sea_bed = utils.scale_image(pygame.image.load("assets/Spritesheets//bg/seabed.png").convert())
 utils.swap_color(sea_bed, [69, 40, 60], [0, 0, 0])
 sea_bed.set_colorkey([0, 0, 0])
-
+global level
+level = 0
 def start(any):
     global game_state
     game_state = 1
+    player.__init__()
+    global level
+    player.level = level
+    fish_manager.__init__()
 def credit(any):
     webbrowser.open("credits.txt")
 def end(any):
@@ -625,10 +630,9 @@ while not cr.event_holder.should_quit:
                 fish_manager.__init__()
                 screenshot = None
                 if win_state == 1:
-                    if player.level < len(player.num_fish)-1:
-                        player.level +=1
-                    else:
-                        player.level = 0
+                    level +=1
+                    if level > len(player.num_fish)-1:
+                        level = 0
                 win_state = None
     else:
         cr.screen.blit(cover, [0 ,0])
