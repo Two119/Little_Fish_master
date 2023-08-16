@@ -162,13 +162,13 @@ class Fish:
                             player.fished = True
                         self.caught = True
         if self.masks[self.frame].overlap(player.mask, [player.player_pos[0]-self.pos[0], player.player_pos[1]-self.pos[1]])!=None:
-            self.crossed = True
+                self.crossed = True
         cr.screen.blit(self.sprite[self.frame], self.pos)
         if (self.pos[0]<0):
             self.crossed = True
 class FishManager:
     def __init__(self):
-        self.fishes = [Fish(random.randint(1280, 1280*2), random.randint(475, 575), random.randint(0, 1)) for i in range(8)]
+        self.fishes = [Fish(random.randint(1280, 1280*2), random.randint(425, 575), random.randint(0, 1)) for i in range(8)]
     def update(self):
         num_fish = -1
         for fish in self.fishes:
@@ -176,7 +176,7 @@ class FishManager:
             if not fish.crossed:
                 fish.update()
             else:
-                self.fishes[num_fish].__init__(1380, random.randint(475, 575), random.randint(0, 1))
+                self.fishes[num_fish].__init__(1380, random.randint(425, 575), random.randint(0, 1))
 
 fish_manager = FishManager()
 def outline_mask(img, loc, color=[255,255,255]):
@@ -333,6 +333,8 @@ class Player:
         self.angle_pointer.set_colorkey([255, 255, 255])
         self.time_lims = [15, 20, 25, 30]
         self.num_fish = [3, 4, 5, 7]
+        self.line_caps = [395, 460, 695, 890]
+        self.line_caps_absolute = [170, 270, 370, 470]
         self.level = 0
         self.time_bar = pygame.Surface([1240, 20])
         self.time_bar_pos = [20, 10]
@@ -353,9 +355,10 @@ class Player:
         self.delay +=1
         self.length_bar.fill([0, 0, 0])
         if mouse_pressed_keys[0] and self.rope == None and not self.fishing:
-            self.create_fishing_line()
-            self.fishing=True
-            self.prepare_fishing_line()
+            if self.line_caps[level] >= 70:
+                self.create_fishing_line()
+                self.fishing=True
+                self.prepare_fishing_line()
         if self.delay%self.delays[self.state]==0:
             self.frame+=1
         if self.state == 0:
@@ -421,10 +424,10 @@ class Player:
                 self.y_points.append(self.rope.lowest_point[0])
             #self.moving = True
             if cr.event_holder.mouse_held_keys[0] and (pg.K_UP in held_keys) and not self.recreated:
-                if (self.line_length<225):
+                if (self.line_length<225) and (self.line_length < self.line_caps[level]):
                     self.line_length+=3
             if cr.event_holder.mouse_held_keys[0] and (pg.K_DOWN in held_keys) and not self.recreated:
-                if (self.line_length>70):
+                if (self.line_length>70) and (self.line_length < self.line_caps[level]):
                     self.line_length-=3
         
             if not mouse_pressed_keys[0] and not cr.event_holder.mouse_held_keys[0] and not self.recreated:
@@ -433,6 +436,7 @@ class Player:
                 self.y_points = []
                 self.state = 1
                 self.casting_sound.play()
+                self.line_caps[level] -= self.line_length
             if not self.recreated:
                 if (pg.K_RIGHT in pressed_keys) or (pg.K_RIGHT in held_keys):
                     if self.fishing_line_angle > 32:
@@ -482,6 +486,7 @@ class Player:
                     self.state = 2
                     self.winding_sound.play()
                     #self.fishing = False
+        print(self.line_caps[level])
         #self.bait_slider.update()
 
 #103
@@ -599,7 +604,7 @@ while not cr.event_holder.should_quit:
                         #print(player.fishing_line_angle, (utils.angle_between([player.idle_pos, player.rope.lowest_point])//1))
                         #print(player.rope.lowest_point[1]-player.rope.orig_pos[1])
             fish_manager.update()
-            if (player.time > player.time_lims[level]) and win_state == None:
+            if ((player.time > player.time_lims[level]) or ((player.line_caps[level]<70) and not player.fishing)) and win_state == None:
                 win_state = 0
                 if screenshot == None:
                     screenshot = cr.screen.copy()
