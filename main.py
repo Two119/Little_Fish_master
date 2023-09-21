@@ -262,7 +262,7 @@ async def main():
             self.click_delay = 0
             self.max_delay = 500
             self.delaying = False
-            self.clicksound = pygame.mixer.Sound("assets/Audio/click.wav")
+            self.clicksound = pygame.mixer.Sound("assets/Audio/click.ogg")
         def update(self):
             self.current = 0
             if self.delaying:
@@ -336,8 +336,8 @@ async def main():
             self.length_bar_pos = [(1280-495)/2, 50]
             self.length_bar_outline = get_outline_mask(self.length_bar, self.length_bar_pos)
             self.length_bar.fill([0, 0, 0])
-            self.casting_sound = pygame.mixer.Sound('assets/Audio/casting.wav')
-            self.winding_sound = pygame.mixer.Sound('assets/Audio/winding_rod.wav')
+            self.casting_sound = pygame.mixer.Sound('assets/Audio/casting.ogg')
+            self.winding_sound = pygame.mixer.Sound('assets/Audio/winding_rod.ogg')
             self.player_pos = [self.pos[0]+self.boat_sprite.get_width()-self.idle_anim[0].get_width()+20, self.pos[1]-10]
             self.rope_throw_positions = [[get_pixel(sprite, [103, 57, 49])[0]+self.player_pos[0], get_pixel(sprite, [103, 57, 49])[1]+self.player_pos[1]] for sprite in self.throw_anim]
             self.rope_pull_positions = [[get_pixel(sprite, [103, 57, 49])[0]+self.player_pos[0], get_pixel(sprite, [103, 57, 49])[1]+self.player_pos[1]] for sprite in self.pull_anim]
@@ -596,10 +596,10 @@ async def main():
     back_button.textures[1].blit(back_text, [(back_button.textures[0].get_width()-back_text.get_width())/2, (back_button.textures[0].get_height()-back_text.get_height())/2+4])
     screenshot = None
     bg_channel = pygame.mixer.Channel(0)
-    bg_channel.play(pygame.mixer.Sound('assets/Audio/background_track.wav'), -1)
+    bg_channel.play(pygame.mixer.Sound('assets/Audio/background_track.ogg'), -1)
     bg_channel.set_volume(0.7)
     wave_channel = pygame.mixer.Channel(1)
-    wave_channel.play(pygame.mixer.Sound('assets/Audio/waves.wav'), -1)
+    wave_channel.play(pygame.mixer.Sound('assets/Audio/waves.ogg'), -1)
     while not cr.event_holder.should_quit:
         cr.screen.fill((120, 171, 200))
         cr.event_holder.get_events()
